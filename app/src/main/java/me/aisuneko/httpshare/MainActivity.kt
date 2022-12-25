@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.documentfile.provider.DocumentFile
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -81,19 +82,21 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
             try {
                 val selectedFile = data?.data // The URI with the location of the file
-                val path = selectedFile?.path
-                if (path != null) {
-                    val name = selectedFile.lastPathSegment
-                    webServer = Server(selectedFile, this)
+                if (selectedFile != null) {
+                    val realFile: DocumentFile? = DocumentFile.fromSingleUri(this, selectedFile)
+                    val fileName: String? = realFile?.name
+                    webServer = Server(selectedFile, fileName ?: "null", this)
                     webServer!!.start()
                     isServerOn = true
+
                     val serverRunningStr = getString(
                         R.string.server_running,
                         NetworkUtils.getLocalIpAddress(),
                         webServer?.listeningPort
                     )
-                    textview_first.text = name + "\n" + serverRunningStr
-                    val stop_icon = this.resources.getIdentifier("@android:drawable/ic_media_stop",null,null)
+                    textview_first.text = fileName + "\n" + serverRunningStr
+                    val stop_icon =
+                        this.resources.getIdentifier("@android:drawable/ic_media_stop", null, null)
                     fab.setImageResource(stop_icon)
                     Snackbar.make(binding.root, serverRunningStr, Snackbar.LENGTH_LONG)
                         .setAnchorView(R.id.fab)

@@ -1,6 +1,5 @@
 package me.aisuneko.httpshare
 
-import android.content.Context
 import java.net.InetAddress
 import java.net.NetworkInterface
 
